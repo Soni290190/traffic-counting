@@ -1,37 +1,101 @@
-const sampleData = {
-    "07:00": {
-        "tanggal": "2024-09-17",
-        "hari": "Selasa",
-        "lokasi": "Lembang",
-        "arah": "Selatan-Utara",
-        "jam": "07:00",
-        "motor": "100",
-        "mobil": "50",
-        "angkutan": "10",
-        "bus": "2",
-        "barangKecil": "5",
-        "barangBesar": "3"
-    }
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Counting Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
 
-const tableBody = document.querySelector('#data-table tbody');
-const rows = Object.values(sampleData).map(item => {
-    const totalKendaraan = Number(item.motor) + Number(item.mobil) + Number(item.angkutan) + Number(item.bus) + Number(item.barangKecil) + Number(item.barangBesar);
-    return `
+<h1>Traffic Counting Report</h1>
+
+<table id="data-table">
+    <thead>
         <tr>
-            <td>${item.tanggal}</td>
-            <td>${item.hari}</td>
-            <td>${item.lokasi}</td>
-            <td>${item.arah}</td>
-            <td>${item.jam}</td>
-            <td>${item.motor}</td>
-            <td>${item.mobil}</td>
-            <td>${item.angkutan}</td>
-            <td>${item.bus}</td>
-            <td>${item.barangKecil}</td>
-            <td>${item.barangBesar}</td>
-            <td>${totalKendaraan}</td>
+            <th>Tanggal</th>
+            <th>Hari</th>
+            <th>Lokasi</th>
+            <th>Arah</th>
+            <th>Jam</th>
+            <th>Motor</th>
+            <th>Mobil</th>
+            <th>Angkutan</th>
+            <th>Bus</th>
+            <th>Barang Kecil</th>
+            <th>Barang Besar</th>
+            <th>Total Kendaraan</th>
         </tr>
-    `;
-}).join('');
-tableBody.innerHTML = rows;
+    </thead>
+    <tbody>
+        <!-- Data akan ditambahkan di sini oleh JavaScript -->
+    </tbody>
+</table>
+
+<script>
+    const sampleData = {
+        "07:00": {
+            "tanggal": "2024-09-17",
+            "hari": "Selasa",
+            "lokasi": "Lembang",
+            "arah": "Selatan-Utara",
+            "jam": "07:00",
+            "motor": "100",
+            "mobil": "50",
+            "angkutan": "10",
+            "bus": "2",
+            "barangKecil": "5",
+            "barangBesar": "3"
+        }
+    };
+
+    // Ambil elemen tbody dari table
+    const tableBody = document.querySelector('#data-table tbody');
+
+    // Buat baris untuk setiap data
+    const rows = Object.values(sampleData).map(item => {
+        const totalKendaraan = Number(item.motor) + Number(item.mobil) + Number(item.angkutan) + Number(item.bus) + Number(item.barangKecil) + Number(item.barangBesar);
+        return `
+            <tr>
+                <td>${item.tanggal}</td>
+                <td>${item.hari}</td>
+                <td>${item.lokasi}</td>
+                <td>${item.arah}</td>
+                <td>${item.jam}</td>
+                <td>${item.motor}</td>
+                <td>${item.mobil}</td>
+                <td>${item.angkutan}</td>
+                <td>${item.bus}</td>
+                <td>${item.barangKecil}</td>
+                <td>${item.barangBesar}</td>
+                <td>${totalKendaraan}</td>
+            </tr>
+        `;
+    }).join('');
+
+    // Tampilkan baris dalam tabel
+    tableBody.innerHTML = rows;
+</script>
+
+</body>
+</html>
