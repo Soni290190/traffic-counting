@@ -189,6 +189,10 @@
             const tanggal = document.getElementById('tanggal').value;
             const hari = document.getElementById('hari').value;
 
+            console.log({
+                surveyor, lokasi, arah, jam, motor, mobil, angkutan, bus, barangKecil, barangBesar, tanggal, hari
+            });
+
             // Simpan data ke Firebase
             database.ref('trafficData/' + tanggal + '/' + jam).set({
                 surveyor: surveyor,
@@ -208,7 +212,7 @@
             });
         }
 
-        // Set date and day on page load
+        // Set tanggal dan hari saat halaman dimuat
         window.onload = setDateAndDay;
     </script>
 </body>
