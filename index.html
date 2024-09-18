@@ -53,8 +53,8 @@
             background-color: #e0a800; /* Darker yellow */
         }
         .readonly {
-            background-color: #f4f4f4;
-            pointer-events: none;
+            background-color: #f0f0f0;
+            cursor: not-allowed;
         }
     </style>
     <!-- Firebase SDK -->
@@ -66,27 +66,11 @@
         <h1>Dishub KBB</h1>
         <h2>Traffic Counting</h2>
         <form id="traffic-form">
-            <label for="surveyor">Nama Surveyor:</label>
-            <select id="surveyor" name="surveyor">
-                <option value="Soni">Soni</option>
-                <option value="Aghen">Aghen</option>
-                <option value="Putri">Putri</option>
-                <option value="Deni">Deni</option>
-                <option value="Deden">Deden</option>
-                <option value="Eka">Eka</option>
-                <option value="Ade">Ade</option>
-            </select>
+            <label for="tanggal">Tanggal:</label>
+            <input type="text" id="tanggal" name="tanggal" class="readonly" readonly>
 
-            <label for="lokasi">Lokasi:</label>
-            <select id="lokasi" name="lokasi" onchange="adjustDirections()">
-                <option value="Lembang">Lembang</option>
-                <option value="Padalarang">Padalarang</option>
-            </select>
-
-            <label for="arah">Arah:</label>
-            <select id="arah" name="arah">
-                <!-- Arah akan diatur secara otomatis -->
-            </select>
+            <label for="hari">Hari:</label>
+            <input type="text" id="hari" name="hari" class="readonly" readonly>
 
             <label for="jam">Jam:</label>
             <select id="jam" name="jam">
@@ -102,6 +86,28 @@
                 <option value="16:00">16:00</option>
                 <option value="17:00">17:00</option>
                 <option value="18:00">18:00</option>
+            </select>
+
+            <label for="lokasi">Lokasi:</label>
+            <select id="lokasi" name="lokasi" onchange="adjustDirections()">
+                <option value="Lembang">Lembang</option>
+                <option value="Padalarang">Padalarang</option>
+            </select>
+
+            <label for="arah">Arah:</label>
+            <select id="arah" name="arah">
+                <!-- Arah akan diatur secara otomatis -->
+            </select>
+
+            <label for="surveyor">Nama Surveyor:</label>
+            <select id="surveyor" name="surveyor">
+                <option value="Soni">Soni</option>
+                <option value="Aghen">Aghen</option>
+                <option value="Putri">Putri</option>
+                <option value="Deni">Deni</option>
+                <option value="Deden">Deden</option>
+                <option value="Eka">Eka</option>
+                <option value="Ade">Ade</option>
             </select>
 
             <label for="motor">Motor:</label>
@@ -121,12 +127,6 @@
 
             <label for="barang-besar">Angkutan Barang Besar:</label>
             <input type="number" id="barang-besar" name="barang-besar" placeholder="Jumlah Angkutan Barang Besar" value="0">
-
-            <label for="tanggal">Tanggal:</label>
-            <input type="text" id="tanggal" name="tanggal" class="readonly" readonly>
-
-            <label for="hari">Hari:</label>
-            <input type="text" id="hari" name="hari" class="readonly" readonly>
 
             <button type="button" onclick="submitForm()">Submit</button>
         </form>
@@ -149,6 +149,16 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        function setDateAndDay() {
+            const now = new Date();
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            const tanggal = now.toLocaleDateString('id-ID', options);
+            const hari = now.toLocaleDateString('id-ID', { weekday: 'long' });
+            
+            document.getElementById('tanggal').value = tanggal;
+            document.getElementById('hari').value = hari;
+        }
+
         function adjustDirections() {
             const lokasi = document.getElementById('lokasi').value;
             const arah = document.getElementById('arah');
@@ -164,15 +174,6 @@
                     <option value="Timur-Barat">Timur-Barat</option>
                 `;
             }
-        }
-
-        function setDateAndDay() {
-            const today = new Date();
-            const date = today.toISOString().split('T')[0];
-            const day = today.toLocaleDateString('id-ID', { weekday: 'long' });
-
-            document.getElementById('tanggal').value = date;
-            document.getElementById('hari').value = day;
         }
 
         function submitForm() {
