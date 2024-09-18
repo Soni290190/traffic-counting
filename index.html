@@ -52,9 +52,9 @@
         button:hover {
             background-color: #e0a800; /* Darker yellow */
         }
-        .readonly {
-            background-color: #f0f0f0;
-            cursor: not-allowed;
+        .error {
+            color: red;
+            font-size: 14px;
         }
     </style>
     <!-- Firebase SDK -->
@@ -65,15 +65,27 @@
     <div class="container">
         <h1>Dishub KBB</h1>
         <h2>Traffic Counting</h2>
-        <form id="traffic-form">
+        <form id="traffic-form" onsubmit="return validateForm()">
             <label for="tanggal">Tanggal:</label>
-            <input type="text" id="tanggal" name="tanggal" class="readonly" readonly>
+            <input type="text" id="tanggal" name="tanggal" readonly>
 
             <label for="hari">Hari:</label>
-            <input type="text" id="hari" name="hari" class="readonly" readonly>
+            <input type="text" id="hari" name="hari" readonly>
+
+            <label for="lokasi">Lokasi:</label>
+            <select id="lokasi" name="lokasi" onchange="adjustDirections()">
+                <option value="Lembang">Lembang</option>
+                <option value="Padalarang">Padalarang</option>
+            </select>
+
+            <label for="arah">Arah:</label>
+            <select id="arah" name="arah">
+                <!-- Arah akan diatur secara otomatis -->
+            </select>
 
             <label for="jam">Jam:</label>
-            <select id="jam" name="jam">
+            <select id="jam" name="jam" required>
+                <option value="" disabled selected>Pilih Jam</option>
                 <option value="07:00">07:00</option>
                 <option value="08:00">08:00</option>
                 <option value="09:00">09:00</option>
@@ -88,19 +100,9 @@
                 <option value="18:00">18:00</option>
             </select>
 
-            <label for="lokasi">Lokasi:</label>
-            <select id="lokasi" name="lokasi" onchange="adjustDirections()">
-                <option value="Lembang">Lembang</option>
-                <option value="Padalarang">Padalarang</option>
-            </select>
-
-            <label for="arah">Arah:</label>
-            <select id="arah" name="arah">
-                <!-- Arah akan diatur secara otomatis -->
-            </select>
-
             <label for="surveyor">Nama Surveyor:</label>
-            <select id="surveyor" name="surveyor">
+            <select id="surveyor" name="surveyor" required>
+                <option value="" disabled selected>Pilih Surveyor</option>
                 <option value="Soni">Soni</option>
                 <option value="Aghen">Aghen</option>
                 <option value="Putri">Putri</option>
@@ -111,25 +113,26 @@
             </select>
 
             <label for="motor">Motor:</label>
-            <input type="number" id="motor" name="motor" placeholder="Jumlah Motor" value="0">
+            <input type="number" id="motor" name="motor" placeholder="Jumlah Motor" value="0" required>
 
             <label for="mobil">Mobil:</label>
-            <input type="number" id="mobil" name="mobil" placeholder="Jumlah Mobil" value="0">
+            <input type="number" id="mobil" name="mobil" placeholder="Jumlah Mobil" value="0" required>
 
             <label for="angkutan">Angkutan Umum:</label>
-            <input type="number" id="angkutan" name="angkutan" placeholder="Jumlah Angkutan Umum" value="0">
+            <input type="number" id="angkutan" name="angkutan" placeholder="Jumlah Angkutan Umum" value="0" required>
 
             <label for="bus">Bus Besar:</label>
-            <input type="number" id="bus" name="bus" placeholder="Jumlah Bus Besar" value="0">
+            <input type="number" id="bus" name="bus" placeholder="Jumlah Bus Besar" value="0" required>
 
             <label for="barang-kecil">Angkutan Barang Kecil:</label>
-            <input type="number" id="barang-kecil" name="barang-kecil" placeholder="Jumlah Angkutan Barang Kecil" value="0">
+            <input type="number" id="barang-kecil" name="barang-kecil" placeholder="Jumlah Angkutan Barang Kecil" value="0" required>
 
             <label for="barang-besar">Angkutan Barang Besar:</label>
-            <input type="number" id="barang-besar" name="barang-besar" placeholder="Jumlah Angkutan Barang Besar" value="0">
+            <input type="number" id="barang-besar" name="barang-besar" placeholder="Jumlah Angkutan Barang Besar" value="0" required>
 
-            <button type="button" onclick="submitForm()">Submit</button>
+            <button type="submit">Submit</button>
         </form>
+        <div id="error-messages" class="error"></div>
     </div>
 
     <script>
@@ -149,16 +152,6 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        function setDateAndDay() {
-            const now = new Date();
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            const tanggal = now.toLocaleDateString('id-ID', options);
-            const hari = now.toLocaleDateString('id-ID', { weekday: 'long' });
-            
-            document.getElementById('tanggal').value = tanggal;
-            document.getElementById('hari').value = hari;
-        }
-
         function adjustDirections() {
             const lokasi = document.getElementById('lokasi').value;
             const arah = document.getElementById('arah');
@@ -176,7 +169,45 @@
             }
         }
 
+        function setDateAndDay() {
+            const now = new Date();
+            const tanggal = document.getElementById('tanggal');
+            const hari = document.getElementById('hari');
+
+            const optionsTanggal = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            const optionsHari = { weekday: 'long' };
+
+            tanggal.value = now.toLocaleDateString('id-ID', optionsTanggal);
+            hari.value = now.toLocaleDateString('id-ID', optionsHari);
+        }
+
+        function validateForm() {
+            const jam = document.getElementById('jam').value;
+            const surveyor = document.getElementById('surveyor').value;
+            const motor = document.getElementById('motor').value;
+            const mobil = document.getElementById('mobil').value;
+            const angkutan = document.getElementById('angkutan').value;
+            const bus = document.getElementById('bus').value;
+            const barangKecil = document.getElementById('barang-kecil').value;
+            const barangBesar = document.getElementById('barang-besar').value;
+
+            const errorMessages = [];
+
+            if (!jam) errorMessages.push('Jam harus dipilih.');
+            if (!surveyor) errorMessages.push('Nama Surveyor harus dipilih.');
+            if (motor < 0 || mobil < 0 || angkutan < 0 || bus < 0 || barangKecil < 0 || barangBesar < 0) {
+                errorMessages.push('Jumlah kendaraan tidak boleh negatif.');
+            }
+
+            const errorDiv = document.getElementById('error-messages');
+            errorDiv.innerHTML = errorMessages.join('<br>');
+
+            return errorMessages.length === 0;
+        }
+
         function submitForm() {
+            if (!validateForm()) return false;
+
             const surveyor = document.getElementById('surveyor').value;
             const lokasi = document.getElementById('lokasi').value;
             const arah = document.getElementById('arah').value;
@@ -190,30 +221,38 @@
             const tanggal = document.getElementById('tanggal').value;
             const hari = document.getElementById('hari').value;
 
-            console.log({
-                surveyor, lokasi, arah, jam, motor, mobil, angkutan, bus, barangKecil, barangBesar, tanggal, hari
-            });
-
-            // Simpan data ke Firebase
-            database.ref('trafficData/' + tanggal + '/' + jam).set({
-                surveyor: surveyor,
-                lokasi: lokasi,
-                arah: arah,
-                motor: motor,
-                mobil: mobil,
-                angkutan: angkutan,
-                bus: bus,
-                barangKecil: barangKecil,
-                barangBesar: barangBesar,
-                hari: hari
-            }).then(() => {
-                alert('Data berhasil disimpan ke Firebase!');
+            const ref = database.ref('trafficData/' + tanggal + '/' + jam);
+            ref.once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    alert('Data untuk jam ini pada tanggal ini sudah ada dan tidak dapat diubah.');
+                } else {
+                    ref.set({
+                        surveyor: surveyor,
+                        lokasi: lokasi,
+                        arah: arah,
+                        motor: motor,
+                        mobil: mobil,
+                        angkutan: angkutan,
+                        bus: bus,
+                        barangKecil: barangKecil,
+                        barangBesar: barangBesar,
+                        hari: hari
+                    }).then(() => {
+                        alert('Data berhasil disimpan ke Firebase!');
+                        document.getElementById('traffic-form').reset();
+                        setDateAndDay(); // Update tanggal dan hari setelah reset form
+                    }).catch((error) => {
+                        alert('Terjadi kesalahan: ' + error.message);
+                    });
+                }
             }).catch((error) => {
                 alert('Terjadi kesalahan: ' + error.message);
             });
+
+            return false; // Prevent form submission
         }
 
-        // Set tanggal dan hari saat halaman dimuat
+        // Set tanggal dan hari ketika halaman dimuat
         window.onload = setDateAndDay;
     </script>
 </body>
