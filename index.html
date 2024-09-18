@@ -52,10 +52,21 @@
         button:hover {
             background-color: #e0a800; /* Darker yellow */
         }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .data-table th {
+            background-color: #000080; /* Navy blue */
+            color: white;
+        }
     </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
@@ -118,12 +129,19 @@
             <label for="barang-besar">Angkutan Barang Besar:</label>
             <input type="number" id="barang-besar" name="barang-besar" placeholder="Jumlah Angkutan Barang Besar" value="0">
 
-            <button type="button" onclick="submitForm()">Submit</button>
+            <button type="button" onclick="addToTable()">Submit</button>
         </form>
+
+        <button onclick="viewData()">View Data</button>
+        <div id="data-container">
+            <!-- Data table will be dynamically populated here -->
+        </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database.js"></script>
     <script>
-        // Firebase Configuration
+        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAq805s0c0FB_ZvErRi04x2GNKtZrJEax0",
             authDomain: "trafficcounting-40188.firebaseapp.com",
@@ -137,7 +155,7 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const db = firebase.database();
 
         function adjustDirections() {
             const lokasi = document.getElementById('lokasi').value;
@@ -156,7 +174,7 @@
             }
         }
 
-        function submitForm() {
+        function addToTable() {
             const surveyor = document.getElementById('surveyor').value;
             const lokasi = document.getElementById('lokasi').value;
             const arah = document.getElementById('arah').value;
@@ -168,24 +186,51 @@
             const barangKecil = document.getElementById('barang-kecil').value;
             const barangBesar = document.getElementById('barang-besar').value;
 
-            // Simpan data ke Firebase
-            database.ref('trafficData/' + jam).set({
-                surveyor: surveyor,
-                lokasi: lokasi,
-                arah: arah,
-                motor: motor,
-                mobil: mobil,
-                angkutan: angkutan,
-                bus: bus,
-                barangKecil: barangKecil,
-                barangBesar: barangBesar
+            db.ref('data').push({
+                surveyor,
+                lokasi,
+                arah,
+                jam,
+                motor,
+                mobil,
+                angkutan,
+                bus,
+                barangKecil,
+                barangBesar
             }).then(() => {
-                alert('Data berhasil disimpan ke Firebase!');
-            }).catch((error) => {
-                alert('Terjadi kesalahan: ' + error.message);
+                alert('Data Tersimpan!');
+            }).catch(error => {
+                console.error('Error saving data: ', error);
+            });
+        }
+
+        function viewData() {
+            const dataContainer = document.getElementById('data-container');
+            dataContainer.innerHTML = ''; // Clear previous data
+
+            db.ref('data').on('value', (snapshot) => {
+                const data = snapshot.val();
+                let html = '<table class="data-table"><thead><tr><th>Surveyor</th><th>Lokasi</th><th>Arah</th><th>Jam</th><th>Motor</th><th>Mobil</th><th>Angkutan Umum</th><th>Bus Besar</th><th>Angkutan Barang Kecil</th><th>Angkutan Barang Besar</th></tr></thead><tbody>';
+
+                for (const id in data) {
+                    const entry = data[id];
+                    html += `<tr>
+                        <td>${entry.surveyor}</td>
+                        <td>${entry.lokasi}</td>
+                        <td>${entry.arah}</td>
+                        <td>${entry.jam}</td>
+                        <td>${entry.motor}</td>
+                        <td>${entry.mobil}</td>
+                        <td>${entry.angkutan}</td>
+                        <td>${entry.bus}</td>
+                        <td>${entry.barangKecil}</td>
+                        <td>${entry.barangBesar}</td>
+                    </tr>`;
+                }
+                html += '</tbody></table>';
+                dataContainer.innerHTML = html;
             });
         }
     </script>
 </body>
-                                                 </html>
-  
+</html>
