@@ -21,7 +21,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #000080;
+            color: #000080; /* Navy blue */
             text-align: center;
         }
         h2 {
@@ -43,14 +43,18 @@
             border-radius: 4px;
         }
         button {
-            background-color: #ffc107;
+            background-color: #ffc107; /* Yellow */
             color: white;
             border: none;
             cursor: pointer;
             font-size: 16px;
         }
         button:hover {
-            background-color: #e0a800;
+            background-color: #e0a800; /* Darker yellow */
+        }
+        .readonly {
+            background-color: #f4f4f4;
+            pointer-events: none;
         }
     </style>
     <!-- Firebase SDK -->
@@ -118,6 +122,12 @@
             <label for="barang-besar">Angkutan Barang Besar:</label>
             <input type="number" id="barang-besar" name="barang-besar" placeholder="Jumlah Angkutan Barang Besar" value="0">
 
+            <label for="tanggal">Tanggal:</label>
+            <input type="text" id="tanggal" name="tanggal" class="readonly" readonly>
+
+            <label for="hari">Hari:</label>
+            <input type="text" id="hari" name="hari" class="readonly" readonly>
+
             <button type="button" onclick="submitForm()">Submit</button>
         </form>
     </div>
@@ -125,14 +135,14 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "API_KEY",
-            authDomain: "PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://PROJECT_ID.firebaseio.com",
-            projectId: "PROJECT_ID",
-            storageBucket: "PROJECT_ID.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID",
-            measurementId: "G-MEASUREMENT_ID"
+            apiKey: "AIzaSyAq805s0c0FB_ZvErRi04x2GNKtZrJEax0",
+            authDomain: "trafficcounting-40188.firebaseapp.com",
+            databaseURL: "https://trafficcounting-40188-default-rtdb.firebaseio.com",
+            projectId: "trafficcounting-40188",
+            storageBucket: "trafficcounting-40188.appspot.com",
+            messagingSenderId: "381516932669",
+            appId: "1:381516932669:web:98ad85610ecf049925ec54",
+            measurementId: "G-KQNS515Y09"
         };
 
         // Initialize Firebase
@@ -156,6 +166,15 @@
             }
         }
 
+        function setDateAndDay() {
+            const today = new Date();
+            const date = today.toISOString().split('T')[0];
+            const day = today.toLocaleDateString('id-ID', { weekday: 'long' });
+
+            document.getElementById('tanggal').value = date;
+            document.getElementById('hari').value = day;
+        }
+
         function submitForm() {
             const surveyor = document.getElementById('surveyor').value;
             const lokasi = document.getElementById('lokasi').value;
@@ -167,32 +186,30 @@
             const bus = document.getElementById('bus').value;
             const barangKecil = document.getElementById('barang-kecil').value;
             const barangBesar = document.getElementById('barang-besar').value;
+            const tanggal = document.getElementById('tanggal').value;
+            const hari = document.getElementById('hari').value;
 
-            // Check if the data already exists
-            const dataRef = database.ref(`trafficData/${lokasi}_${arah}_${jam}`);
-            dataRef.once('value', snapshot => {
-                if (snapshot.exists()) {
-                    alert('Data sudah ada untuk lokasi, arah, dan jam yang dipilih. Silakan pilih data lain.');
-                } else {
-                    // Simpan data ke Firebase
-                    dataRef.set({
-                        surveyor: surveyor,
-                        lokasi: lokasi,
-                        arah: arah,
-                        motor: motor,
-                        mobil: mobil,
-                        angkutan: angkutan,
-                        bus: bus,
-                        barangKecil: barangKecil,
-                        barangBesar: barangBesar
-                    }).then(() => {
-                        alert('Data berhasil disimpan ke Firebase!');
-                    }).catch((error) => {
-                        alert('Terjadi kesalahan: ' + error.message);
-                    });
-                }
+            // Simpan data ke Firebase
+            database.ref('trafficData/' + tanggal + '/' + jam).set({
+                surveyor: surveyor,
+                lokasi: lokasi,
+                arah: arah,
+                motor: motor,
+                mobil: mobil,
+                angkutan: angkutan,
+                bus: bus,
+                barangKecil: barangKecil,
+                barangBesar: barangBesar,
+                hari: hari
+            }).then(() => {
+                alert('Data berhasil disimpan ke Firebase!');
+            }).catch((error) => {
+                alert('Terjadi kesalahan: ' + error.message);
             });
         }
+
+        // Set date and day on page load
+        window.onload = setDateAndDay;
     </script>
 </body>
 </html>
