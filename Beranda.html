@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dishub KBB Traffic Counting - Data Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #000080;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #000080;
+            color: white;
+        }
+        button {
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #e0a800;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Dishub KBB Traffic Counting - Data Results</h1>
+        <button onclick="loadData()">Load Data</button>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Hari</th>
+                    <th>Lokasi</th>
+                    <th>Arah</th>
+                    <th>Jam</th>
+                    <th>Motor</th>
+                    <th>Mobil</th>
+                    <th>Angkutan Umum</th>
+                    <th>Bus Besar</th>
+                    <th>Barang Kecil</th>
+                    <th>Barang Besar</th>
+                    <th>Total Kendaraan</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <canvas id="traffic-chart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAq805s0c0FB_ZvErRi04x2GNKtZrJEax0",
+            authDomain: "trafficcounting-40188.firebaseapp.com",
+            databaseURL: "https://trafficcounting-40188-default-rtdb.firebaseio.com",
+            projectId: "trafficcounting-40188",
+            storageBucket: "trafficcounting-40188.appspot.com",
+            messagingSenderId: "381516932669",
+            appId: "1:381516932669:web:11c2d2f43fa64da525ec54",
+            measurementId: "G-CWKZ9R6G4S"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function loadData() {
+            const tableBody = document.querySelector('#data-table tbody');
+            tableBody.innerHTML = ''; // Clear previous data
+
+            database.ref('trafficData').once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const rows = Object.values(data).map(item => {
+                        const totalKendaraan = Number(item.motor) + Number(item.mobil) + Number(item.angkutan) + Number(item.bus) + Number(item.barangKecil) + Number(item.barangBesar);
+                        return `
+                            <tr>
+                                <td>${item.tanggal}</td>
+                                <td>${item.hari}</td>
+                                <td>${item.lokasi}</td>
+                                <td>${item.arah}</td>
+                                <td>${item.jam}</td>
+                                <td>${item.motor}</td>
+                                <td>${item.mobil}</td>
+                                <td>${item.angkutan}</td>
+                                <td>${item.bus}</td>
+                                <td>${item.barangKecil}</td>
+                                <td>${item.barangBesar}</td>
+                                <td>${totalKendaraan}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                    tableBody.innerHTML = rows;
+
+                    renderChart(data);
+                }
+            });
+        }
+
+        function renderChart(data) {
+            const labels = Object.keys(data);
+            const dataset = labels.map(key => {
+                const item = data[key];
+                return Number(item.motor) + Number(item.mobil) + Number(item.angkutan) + Number(item.bus) + Number(item.barangKecil) + Number(item.barangBesar);
+            });
+
+            const ctx = document.getElementById('traffic-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Kendaraan',
+                        data: dataset,
+                        backgroundColor: '#000080',
+                        borderColor: '#000080',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
