@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dishub KBB Traffic Counting</title>
+    <title>DINAS PERHUBUNGAN KABUPATEN BANDUNG BARAT TRAFFIC COUNTING</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,20 +51,6 @@
         }
         button:hover {
             background-color: #e0a800; /* Darker yellow */
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .data-table th, .data-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        .data-table th {
-            background-color: #000080; /* Navy blue */
-            color: white;
         }
     </style>
 </head>
@@ -131,11 +117,6 @@
 
             <button type="button" onclick="addToTable()">Submit</button>
         </form>
-
-        <button onclick="viewData()">View Data</button>
-        <div id="data-container">
-            <!-- Data table will be dynamically populated here -->
-        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
@@ -201,34 +182,6 @@
                 alert('Data Tersimpan!');
             }).catch(error => {
                 console.error('Error saving data: ', error);
-            });
-        }
-
-        function viewData() {
-            const dataContainer = document.getElementById('data-container');
-            dataContainer.innerHTML = ''; // Clear previous data
-
-            db.ref('data').on('value', (snapshot) => {
-                const data = snapshot.val();
-                let html = '<table class="data-table"><thead><tr><th>Surveyor</th><th>Lokasi</th><th>Arah</th><th>Jam</th><th>Motor</th><th>Mobil</th><th>Angkutan Umum</th><th>Bus Besar</th><th>Angkutan Barang Kecil</th><th>Angkutan Barang Besar</th></tr></thead><tbody>';
-
-                for (const id in data) {
-                    const entry = data[id];
-                    html += `<tr>
-                        <td>${entry.surveyor}</td>
-                        <td>${entry.lokasi}</td>
-                        <td>${entry.arah}</td>
-                        <td>${entry.jam}</td>
-                        <td>${entry.motor}</td>
-                        <td>${entry.mobil}</td>
-                        <td>${entry.angkutan}</td>
-                        <td>${entry.bus}</td>
-                        <td>${entry.barangKecil}</td>
-                        <td>${entry.barangBesar}</td>
-                    </tr>`;
-                }
-                html += '</tbody></table>';
-                dataContainer.innerHTML = html;
             });
         }
     </script>
