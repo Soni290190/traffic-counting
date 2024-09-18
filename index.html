@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DINAS PERHUBUNGAN KABUPATEN BANDUNG BARAT TRAFFIC COUNTING</title>
+    <title>Dishub KBB Traffic Counting</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,6 +53,9 @@
             background-color: #e0a800; /* Darker yellow */
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
@@ -115,14 +118,12 @@
             <label for="barang-besar">Angkutan Barang Besar:</label>
             <input type="number" id="barang-besar" name="barang-besar" placeholder="Jumlah Angkutan Barang Besar" value="0">
 
-            <button type="button" onclick="addToTable()">Submit</button>
+            <button type="button" onclick="submitForm()">Submit</button>
         </form>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database.js"></script>
     <script>
-        // Your Firebase configuration
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAq805s0c0FB_ZvErRi04x2GNKtZrJEax0",
             authDomain: "trafficcounting-40188.firebaseapp.com",
@@ -136,7 +137,7 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const database = firebase.database();
 
         function adjustDirections() {
             const lokasi = document.getElementById('lokasi').value;
@@ -155,7 +156,7 @@
             }
         }
 
-        function addToTable() {
+        function submitForm() {
             const surveyor = document.getElementById('surveyor').value;
             const lokasi = document.getElementById('lokasi').value;
             const arah = document.getElementById('arah').value;
@@ -167,21 +168,21 @@
             const barangKecil = document.getElementById('barang-kecil').value;
             const barangBesar = document.getElementById('barang-besar').value;
 
-            db.ref('data').push({
-                surveyor,
-                lokasi,
-                arah,
-                jam,
-                motor,
-                mobil,
-                angkutan,
-                bus,
-                barangKecil,
-                barangBesar
+            // Simpan data ke Firebase
+            database.ref('trafficData/' + jam).set({
+                surveyor: surveyor,
+                lokasi: lokasi,
+                arah: arah,
+                motor: motor,
+                mobil: mobil,
+                angkutan: angkutan,
+                bus: bus,
+                barangKecil: barangKecil,
+                barangBesar: barangBesar
             }).then(() => {
-                alert('Data Tersimpan!');
-            }).catch(error => {
-                console.error('Error saving data: ', error);
+                alert('Data berhasil disimpan ke Server Dishubkbb!');
+            }).catch((error) => {
+                alert('Terjadi kesalahan: ' + error.message);
             });
         }
     </script>
