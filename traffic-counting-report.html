@@ -66,4 +66,136 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-database.js"></script>
-  
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Dishub KBB Traffic Counting - Data Analysis</h1>
+
+        <!-- Tabel untuk menampilkan data -->
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Hari</th>
+                    <th>Lokasi</th>
+                    <th>Arah</th>
+                    <th>Jam</th>
+                    <th>Motor</th>
+                    <th>Mobil</th>
+                    <th>Angkutan</th>
+                    <th>Bus</th>
+                    <th>Barang Kecil</th>
+                    <th>Barang Besar</th>
+                    <th>Total Kendaraan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data akan diisi oleh JavaScript -->
+            </tbody>
+        </table>
+
+        <!-- Grafik akan ditampilkan di sini -->
+        <div class="chart-container">
+            <canvas id="trafficChart"></canvas>
+        </div>
+
+        <button onclick="generateChart()">Generate Chart</button>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAq805s0c0FB_ZvErRi04x2GNKtZrJEax0",
+            authDomain: "trafficcounting-40188.firebaseapp.com",
+            databaseURL: "https://trafficcounting-40188-default-rtdb.firebaseio.com",
+            projectId: "trafficcounting-40188",
+            storageBucket: "trafficcounting-40188.appspot.com",
+            messagingSenderId: "381516932669",
+            appId: "1:381516932669:web:11c2d2f43fa64da525ec54",
+            measurementId: "G-CWKZ9R6G4S"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Ambil elemen tbody dari tabel
+        const tableBody = document.querySelector('#data-table tbody');
+
+        // Fungsi untuk mengambil data dari Firebase dan menampilkannya di tabel
+        function loadData() {
+            database.ref('trafficData').once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const rows = Object.values(data).map(item => {
+                        const totalKendaraan = Number(item.motor) + Number(item.mobil) + Number(item.angkutan) + Number(item.bus) + Number(item.barangKecil) + Number(item.barangBesar);
+                        return `
+                            <tr>
+                                <td>${item.tanggal}</td>
+                                <td>${item.hari}</td>
+                                <td>${item.lokasi}</td>
+                                <td>${item.arah}</td>
+                                <td>${item.jam}</td>
+                                <td>${item.motor}</td>
+                                <td>${item.mobil}</td>
+                                <td>${item.angkutan}</td>
+                                <td>${item.bus}</td>
+                                <td>${item.barangKecil}</td>
+                                <td>${item.barangBesar}</td>
+                                <td>${totalKendaraan}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                    tableBody.innerHTML = rows;
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="12">No data available</td></tr>';
+                }
+            });
+        }
+
+        // Fungsi untuk membuat grafik menggunakan Chart.js
+        function generateChart() {
+            const labels = [];
+            const totalVehicles = [];
+
+            database.ref('trafficData').once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.values(data).forEach(item => {
+                        const totalKendaraan = Number(item.motor) + Number(item.mobil) + Number(item.angkutan) + Number(item.bus) + Number(item.barangKecil) + Number(item.barangBesar);
+                        labels.push(item.jam);  // Menampilkan jam di grafik
+                        totalVehicles.push(totalKendaraan);
+                    });
+
+                    const ctx = document.getElementById('trafficChart').getContext('2d');
+                    const trafficChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Kendaraan',
+                                data: totalVehicles,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // Load data saat halaman pertama kali dibuka
+        loadData();
+    </script>
+</body>
+</html>
