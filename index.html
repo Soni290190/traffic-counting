@@ -208,7 +208,7 @@
                     }).then(() => {
                         alert('Data berhasil disimpan ke Firebase!');
                     }).catch((error) => {
-                        console.error('Gagal menyimpan data:', error);
+                        alert('Terjadi kesalahan: ' + error.message);
                     });
                 }
             });
