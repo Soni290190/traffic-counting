@@ -33,7 +33,7 @@ Aplikasi ini memanfaatkan Firebase Realtime Database untuk menyimpan data secara
 ## 🔧 Cara Install di Lokal
 1. Clone repository ini ke komputer kamu:
    ```bash
-   git clone https://github.com/username/traffic-counting.git
+   git clone https://github.com/soni290190/traffic-counting.git
    ```
 2. Buka file `index.html` di browser favorit kamu untuk melihat aplikasi.
 
